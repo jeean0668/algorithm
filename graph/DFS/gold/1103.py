@@ -5,7 +5,6 @@ dynamic 프로그래밍으로 추정된다.
 3. cycle을 판단할때, 1) 이미 방문한 점인데, 2) 탐색이 끝나지 않았던 점이면 
 cycle로 판단했다. 
 """
-
 # 전역변수 선언
 import sys
 input = sys.stdin.readline
