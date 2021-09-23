@@ -16,26 +16,28 @@ dx = [-1, 0, 1, 0]
 def bfs(s_point, classes, graph):
     
     c = [[sys.maxsize for _ in range(W+1)] for _ in range(H+1)]
+    visited = [[False for _ in range(W+1)] for _ in range(H+1)]
     queue = []
     heapq.heappush(queue, [0, s_point])
+    visited[s_point[0]][s_point[1]] = True
+    c[s_point[0]][s_point[1]] = 0
     
     while queue:
         length, now = heapq.heappop(queue)
         y, x = now[0], now[1]
         if y == 0 or y == H-1 or x == 0 or x == W-1:
-            print(y,x)
-            return c[y][x]
-        if c[y][x] < length:
-            continue
+            print(length)
+            break
         for i in range(4):
             ny = y + dy[i]
             nx = x + dx[i]
-            if ny<0 or ny>=H or nx<0 or nx>=W:
-                continue
             dist = length + classes[graph[ny][nx]]
-            if c[ny][nx] > dist:
-                c[ny][nx] = dist
-                heapq.heappush(queue, [dist, [ny, nx]])
+            # 기존의 다익스트라 문제와는 조금 다르다
+            # heap구조를 
+            if c[ny][nx] <= dist:
+                continue
+            heapq.heappush(queue, [dist, [ny, nx]])
+            c[ny][nx] = dist
 
 T = int(input())
 
@@ -54,7 +56,6 @@ for _ in range(T):
     for i in range(H):
         for j in range(W):
             if graph[i][j] == "E":
-                result = bfs([i,j], classes, graph)
+                bfs([i,j], classes, graph)
                 break
-    print(result)
 
