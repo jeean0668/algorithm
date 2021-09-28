@@ -5,13 +5,16 @@
 import sys
 from collections import deque
 import math
+import heapq
+sys.setrecursionlimit(10**6)
 input = sys.stdin.readline
 
 n, k = map(int, input().split())
 
-queue = deque()
-queue.append([n, 0])
+queue = []
+heapq.heappush(queue, [0, n])
 distance = [math.inf] * (100001)
+prev = [0] * 100001
 distance[n] = 0
 
 def connected(node):
@@ -24,17 +27,29 @@ def connected(node):
     if 0 < node * 2 < 100001:
         result.append(node * 2)
     return result
-
+def path(x):
+    arr = []
+    temp = x
+    for _ in range(distance[x] + 1):
+        arr.append(temp)
+        temp = prev[temp]
+    print(' '.join(map(str, arr[::-1])))
 while queue:
-    now, dist = queue.popleft()
+    temp = heapq.heappop(queue)
+    now, dist = temp[1], temp[0]
+    if now == k:
+        print(distance[k])
+        path(now)
+        break
     if distance[now] < dist:
-        continue
-    if now == 0:
         continue
     childs = connected(now)
     for child in childs:
-        print(child)
         if distance[child] > dist + 1:
             distance[child] = dist + 1
-            queue.append([child, dist + 1])
-print(distance[k])
+            prev[child] = now
+            heapq.heappush(queue, [dist + 1, child])
+
+
+
+            
