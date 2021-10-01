@@ -1,3 +1,12 @@
+# -*- coding: utf-8 -*- 
+"""
+그냥 생각하지 못했다. BFS문제만 100문제는 풀어봐야겠다는 생각이 든다.
+자리를 바꾼 모든 값들을 queue에만 넣어주면 되는 문제였는데... 아쉽다.
+"""
+import sys
+input = sys.stdin.readline
+import copy
+
 N, K = input().split()
 M = len(N) #전체 자릿수
 K = int(K)
@@ -9,12 +18,11 @@ q.append([[ch for ch in N],0]) # 시작 숫자와 깊이를 넣어준다.
 cache[int(N)][0]=True
 
 def swap(N, idx1, idx2):
-	'''
-    자리 두개를 바꿔주는 함수
-    '''
-    temp = N[idx1]
+    
+    a = N[idx1]
+    N[idx1]
     N[idx1] = N[idx2]
-    N[idx2] = temp
+    N[idx2] = a
 
 answer = -1
 while q:

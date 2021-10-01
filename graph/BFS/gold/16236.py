@@ -1,56 +1,85 @@
-"""
-문제 플로우는 맞았지만, 구현을 시간내에 하지 못했다.
-"""
+# -*- coding: utf-8 -*-
 
-from collections import deque
 import sys
-
+from collections import deque
 input = sys.stdin.readline
-dx = [-1, 0, 0, 1]
-dy = [0, -1, 1, 0]
+dy = [-1, 0, 0, 1]
+dx = [0, 1, -1, 0]
 
-def bfs(x, y, weight, time, eat):
-    q, can_eat = deque(), []
-    q.append([x, y])
-    c = [[-1]*n for _ in range(n)]
-    c[x][y] = time
-    while q:
-        qlen = len(q)
-        while qlen:
-            x, y = q.popleft()
-            for i in range(4):
-                nx = x + dx[i]
-                ny = y + dy[i]
-                if 0 <= nx < n and 0 <= ny < n:
-                    if c[nx][ny] == -1:
-                        if a[nx][ny] == 0 or a[nx][ny] == weight:
-                            c[nx][ny] = c[x][y] + 1
-                            q.append([nx, ny])
-                        elif 0 < a[nx][ny] < weight:
-                            can_eat.append([nx, ny])
-            qlen -= 1
+def makeGraph(n):
+    global graph, start
+    graph = []
+    for i in range(n):
+        row = list(map(int, input().split()))
+        for j in range(len(row)):
+            if row[j] == 9:
+                start = [i,j]
+                row[j] = 0 
+        graph.append(row)
 
-        if can_eat:
-            nx, ny = min(can_eat)
-            eat += 1
-            if eat == weight:
-                eat = 0
-                weight += 1
-            a[nx][ny] = 0
-            return nx, ny, weight, c[x][y] + 1, eat
+def bfs(start):
+    # start에서 출발하여 먹을 수 있는 물고기들을 찾는다. 
+    global n, fishes, size
+    queue = deque()
+    queue.append([0, start[0], start[1]])
+    visited = [[False for _ in range(n+1)] for _ in range(n+1)]
 
-    print(time)
-    sys.exit()
+    flag = sys.maxsize
+    
+    while queue:
+       
+        cnt, y, x = queue.popleft()
+        if cnt > flag:
+            break
+        for i in range(4):
+            ny = y + dy[i]
+            nx = x + dx[i]
+            if not(0<=ny<n and 0<=nx<n):
+                continue
+            if visited[ny][nx] or graph[ny][nx] > size:
+                continue
+            if 0 < graph[ny][nx] < size:
+                fishes.append([cnt + 1, ny, nx])
+                flag = cnt
+            queue.append([cnt + 1, ny, nx])
+            visited[ny][nx] =  True
 
-n = int(input())
-a = [list(map(int, input().split())) for _ in range(n)]
+def findShortest(start, size):
+    # bfs로 가장 가까우면서 먹을 수 있는 물고기를 찾는다.
+    global fishes
+    fishes = []
+    bfs(start)
+    if len(fishes) == 0:
+        return -1
+   
+    fishes.sort() # 오름차순 정렬하면 거리 순, 행 순, 열 순으로 오름차순 정렬된다.
+    
 
-for i in range(n):
-    for j in range(n):
-        if a[i][j] == 9:
-            x, y = i, j
-            a[i][j] = 0
+    return fishes[0]
 
-weight, time, eat = 2, 0, 0
-while True:
-    x, y, weight, time, eat = bfs(x, y, weight, time, eat)
+
+def solve():
+    global start, size
+    size = 2
+    cnt = 0
+    total_move = 0
+    _next = []
+    while True:
+        _next = findShortest(start, size)
+       
+        if _next == -1:
+            break
+        total_move += _next[0]
+        graph[_next[1]][_next[2]] = 0
+        start = [_next[1], _next[2]]
+        cnt += 1
+        if cnt == size:
+            size += 1
+            cnt = 0
+    print(total_move)
+
+if __name__ == "__main__":
+    n = int(input())
+    makeGraph(n)
+    solve()
+        
