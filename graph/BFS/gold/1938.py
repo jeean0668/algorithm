@@ -17,10 +17,11 @@ def getInput():
                 start.append([i, j])
             elif graph[i][j] == "E":
                 end.append([i, j])
-    if end[0][0] - end[1][0] == 1:
-        end_dir = 1
-    else:
+    #print(end)
+    if end[0][0] == end[1][0]:
         end_dir = 0
+    else:
+        end_dir = 1
 def canmoveRight(center, dir):
     global graph
     
@@ -68,14 +69,16 @@ def canRotate(center, dir):
     if dir == 0:
         first_y, first_x = center[0], center[1] - 1
         last_y, last_x = center[0], center[1] + 1
+        
         if not(0<=first_y-1<n or 0<=center[0]-1<n or 0<=last_y-1<n):
             return False
         if not(0<=first_y+1<n or 0<=center[0]+1<n or 0<=last_y+1<n):
             return False
-        if graph[first_y-1][first_x] == '1' or graph[center[0]-1][first_x] == '1' or graph[last_y - 1][last_x] == '1':
+        if graph[first_y-1][first_x] == '1' or graph[center[0]-1][center[1]] == '1' or graph[last_y - 1][last_x] == '1':
             return False
-        if graph[first_y+1][first_x] == '1' or graph[center[0]+1][first_x] == '1' or graph[last_y + 1][last_x] == '1':
+        if graph[first_y+1][first_x] == '1' or graph[center[0]+1][center[1]] == '1' or graph[last_y + 1][last_x] == '1':
             return False
+        return True
     if dir == 1:
         first_y, first_x = center[0]-1, center[1]
         last_y, last_x = center[0]+1, center[1]
@@ -87,7 +90,7 @@ def canRotate(center, dir):
             return False
         if graph[first_y][first_x+1] == '1' or graph[center[0]][center[1]+1] == '1' or graph[last_y][last_x+1] == '1':
             return False
-        
+        return True
 def canmoveUp(center, dir):
     global graph
     
@@ -137,62 +140,64 @@ def solve():
     # visited는 [center y][center x][vertical or horizontal] 로 선언
     visited = [[[False for _ in range(2)] for _ in range(n+1)] for _ in range(n+1)]
     # 시작을 horizontal하게 시작할때 
-    if abs(start[0][0] - start[1][0])== 1:
-        queue.append([start[1], 0, 1])
-        visited[start[1][0]][start[1][1]][1] = True
-    elif abs(start[0][1] - start[1][1]) == 1:
+    if start[0][0] == start[1][0]:
         queue.append([start[1], 0, 0])
         visited[start[1][0]][start[1][1]][0] = True
+    elif start[0][1] == start[1][1] :
+        queue.append([start[1], 0, 1])
+        visited[start[1][0]][start[1][1]][1] = True
     
     while queue:
         center, cnt, dir = queue.popleft() # center 좌표, 갯수, 누워있는 방향
         y, x = center[0], center[1]
-        print(y, x, dir)
+    
         if y == end[1][0] and x == end[1][1] and dir == end_dir:
+           
             return cnt
         
         if canmoveLeft(center, dir):
             
             ny, nx = y, x-1
+            
+            #print(y, x, dir, ny, nx)
             if 0<=ny<n and 0<=nx<n:
-                if ny == 12 and nx == 10:
-                    print(y, x, ny, nx, dir)
+    
                 if not visited[ny][nx][dir]:
                     queue.append([[ny, nx], cnt + 1, dir])
                     visited[ny][nx][dir] = True
         if canmoveRight(center, dir):
-
+            
             ny, nx = y, x+1
+            #print(y, x, dir, ny, nx)
             if 0<=ny<n and 0<=nx<n:
-                if ny == 12 and nx == 10:
-                    print(y, x, ny, nx, dir)
+               
                 if not visited[ny][nx][dir]:
                     queue.append([[ny, nx], cnt + 1, dir])
                     visited[ny][nx][dir] = True
         if canmoveUp(center, dir):
           
             ny, nx = y-1, x
+            #print(y, x, dir, ny, nx)
             if 0<=ny<n and 0<=nx<n:
-                if ny == 12 and nx == 10:
-                    print(y, x, ny, nx, dir)
+              
                 if not visited[ny][nx][dir]:
                     queue.append([[ny, nx], cnt + 1, dir])
                     visited[ny][nx][dir] = True
         if canmoveDown(center, dir):
            
             ny, nx = y+1, x
+            #print(y, x, dir, ny, nx)
             if 0<=ny<n and 0<=nx<n:
-                if ny == 12 and nx == 10:
-                    print(y, x, ny, nx, dir)
+             
                 if not visited[ny][nx][dir]:
                     queue.append([[ny, nx], cnt + 1, dir])
                     visited[ny][nx][dir] = True
+        #print(y, x, canRotate(center, dir))
         if canRotate(center, dir):
          
             ny, nx = y, x
+            #print(y, x, dir, ny, nx)
             if 0<=ny<n and 0<=nx<n:
-                if ny == 12 and nx == 10:
-                    print(y, x, ny, nx, dir)
             
                 if dir == 1:
                     n_dir = 0
