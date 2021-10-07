@@ -1,0 +1,158 @@
+import sys
+from collections import deque
+input = sys.stdin.readline
+
+def getInput():
+    global n, graph, start, end
+    n = int(input())
+    graph = []
+    start, end = [], []
+    for i in range(n):
+        row = list(map(str, input().rstrip()))
+        graph.append(row)
+        for j in range(len(row)):
+            if graph[i][j] == "B":
+                start.append([i, j])
+            elif graph[i][j] == "E":
+                end.append([i, j])
+def canmoveRight(center, dir):
+    global graph
+    
+    # horizontal 할 경우
+    if dir == 0:
+        first_y, first_x = center[0], center[1] - 1
+        last_y, last_x = center[0], center[1] + 1
+        if graph[last_y][last_x + 1] != 1:
+            return True
+        return False
+    # vertical 할경우
+    elif dir == 1:
+        first_y, first_x = center[0]-1, center[1]
+        last_y, last_x = center[0]+1, center[1]
+        if graph[first_y][first_x + 1] != 1 and graph[center[0]][center[1] + 1] != 1 and graph[last_y][last_x + 1] != 1:
+            return True
+        return False 
+def canmoveLeft(center, dir):
+    global graph
+    
+    # horizontal 할 경우
+    if dir == 0:
+        first_y, first_x = center[0], center[1] - 1
+        last_y, last_x = center[0], center[1] + 1
+        if graph[first_y][first_x - 1] != 1:
+            return True
+        return False
+    # vertical 할경우
+    elif dir == 1:
+        first_y, first_x = center[0]-1, center[1]
+        last_y, last_x = center[0]+1, center[1]
+        if graph[first_y][first_x - 1] != 1 and graph[center[0]][center[1] - 1] != 1 and graph[last_y][last_x - 1] != 1:
+            return True
+        return False 
+def canRotate(center, dir):
+    if canmoveLeft(center, dir) and canmoveRight(center, dir):
+        return True
+    return False
+def canmoveUp(center, dir):
+    global graph
+    
+    # vertical 할경우
+    if dir == 1:
+        first_y, first_x = center[0]-1, center[1]
+        last_y, last_x = center[0]+1, center[1]
+        if graph[first_y - 1][first_x] != 1:
+            return True
+        return False
+    #horizontal 할 경우
+    elif dir == 0:
+        first_y, first_x = center[0], center[1] - 1
+        last_y, last_x = center[0], center[1] + 1
+        if graph[first_y - 1][first_x] != 1 and graph[center[0] - 1][center[1]] != 1 and graph[last_y - 1][last_x] != 1:
+            return True
+        return False
+
+def canmoveDown(center, dir):
+    global graph
+   
+    # vertical 할경우
+    if dir == 1:
+        first_y, first_x = center[0]-1, center[1]
+        last_y, last_x = center[0]+1, center[1]
+        if graph[last_y + 1][last_x] != 1:
+            return True
+        return False
+    #horizontal 할 경우
+    elif dir == 0:
+        first_y, first_x = center[0], center[1]-1
+        last_y, last_x = center[0], center[1]+1
+        if graph[first_y + 1][first_x] != 1 and graph[center[0] + 1][center[1]] != 1 and graph[last_y + 1][last_x] != 1:
+            return True
+        return False 
+def solve():
+    global n, graph, start, end
+    queue = deque()
+    # visited는 [center y][center x][vertical or horizontal] 로 선언
+    visited = [[[False for _ in range(2)] for _ in range(n+1)] for _ in range(n+1)]
+    # 시작을 horizontal하게 시작할때 
+    print(start[0][1], start[1][0])
+    if abs(start[0][0] - start[1][0])== 1:
+        queue.append([start[1], 0, 0])
+        visited[start[1][0]][start[1][1]][0] = True
+    elif abs(start[0][1] - start[1][1]) == 1:
+        queue.append([start[1], 0, 1])
+        visited[start[1][0]][start[1][1]][1] = True
+    
+    while queue:
+        center, cnt, dir = queue.popleft() # center 좌표, 갯수, 누워있는 방향
+        y, x = center[0], center[1]
+       
+        if y == end[1][0] and x == end[1][1]:
+            return cnt
+        print(y, x, dir)
+        if canmoveLeft(center, dir):
+           
+            ny, nx = y, x-1
+            if 0<=ny<n and 0<=nx<n:
+                if not visited[ny][nx][dir]:
+                    queue.append([[ny, nx], cnt + 1, dir])
+                    visited[ny][nx][dir] = True
+        if canmoveRight(center, dir):
+
+            ny, nx = y, x+1
+            if 0<=ny<n and 0<=nx<n:
+                if not visited[ny][nx][dir]:
+                    queue.append([[ny, nx], cnt + 1, dir])
+                    visited[ny][nx][dir] = True
+        if canmoveUp(center, dir):
+          
+            ny, nx = y-1, x
+            if 0<=ny<n and 0<=nx<n:
+                if not visited[ny][nx][dir]:
+                    queue.append([[ny, nx], cnt + 1, dir])
+                    visited[ny][nx][dir] = True
+        if canmoveDown(center, dir):
+           
+            ny, nx = y+1, x
+            if 0<=ny<n and 0<=nx<n:
+                if not visited[ny][nx][dir]:
+                    queue.append([[ny, nx], cnt + 1, dir])
+                    visited[ny][nx][dir] = True
+        if canRotate(center, dir):
+         
+            ny, nx = y, x
+            if 0<=ny<n and 0<=nx<n:
+                print(ny, nx, dir)
+                print(visited[ny][nx])
+                if not visited[ny][nx][dir]:
+                    if dir == 1: 
+                        queue.append([[ny, nx], cnt + 1, 0])
+                        visited[ny][nx][dir] = True
+                    else:
+                        queue.append([[ny, nx], cnt + 1, 1])
+                        visited[ny][nx][dir] = True
+    return 0
+
+
+if __name__ == "__main__":
+    getInput()
+    print(solve())
